@@ -1,0 +1,109 @@
+esphome:
+  name: esp32-brunnen
+  platformio_options:
+    upload_speed: 921600
+  on_boot:
+    then:
+      - delay: 10s
+      - script.execute: consider_deep_sleep
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+ota:
+  platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid 
+  password: !secret wifi_password
+  fast_connect: true
+  ap: {}
+
+captive_portal:
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+one_wire:
+  - platform: gpio
+    pin: 5
+
+sensor:
+  - platform: dallas_temp
+    name: "Temperatur Wasser"
+
+  - platform: adc
+    pin: GPIO39
+    id: "battery_voltage"
+    name: "Batterie Voltage"
+    attenuation: auto
+
+  - platform: template
+    name: "Battery"
+    unit_of_measurement: '%'
+    lambda: |-
+      return ((id(battery_voltage).state /3.30) * 100.00);
+
+  - platform: adc
+    pin: GPIO35
+    name: "Wasserstand Voltage"
+    id: levelraw
+
+  - platform: template
+    name: "Wasserstand"
+    lambda: |-
+      return id(levelraw).state;
+    filters:
+      - sliding_window_moving_average:
+          window_size: 30
+          send_every: 30
+      - calibrate_linear:
+            - 0.29 -> 0.0
+            - 0.36 -> 0.1
+            - 0.6 -> 1.1
+      - multiply: 100
+    accuracy_decimals: 1
+    unit_of_measurement: cm
+    icon: "mdi:car-coolant-level"
+
+
+binary_sensor:
+  - platform: homeassistant
+    id: enable_deep_sleep
+    name: Enable Deep Sleep
+    entity_id: input_boolean.enable_esphome_deepsleep
+    on_state:
+      then:
+        - script.execute: consider_deep_sleep
+
+
+deep_sleep:
+  id: deep_sleep_control
+  run_duration: 60s
+  sleep_duration: 60s
+
+script:
+  - id: consider_deep_sleep
+    mode: queued
+    then:
+      - delay: 10s
+      - if:
+          condition:
+            binary_sensor.is_off: enable_deep_sleep
+          then:
+            - logger.log: 'Skipping sleep, per enable_deep_sleep'
+            - deep_sleep.prevent: deep_sleep_control
+          else:
+            - logger.log: 'Enable sleep, per enable_deep_sleep'
+            - deep_sleep.allow: deep_sleep_control
