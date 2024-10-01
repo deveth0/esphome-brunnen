@@ -52,6 +52,7 @@ sensor:
   - platform: template
     name: "Battery"
     unit_of_measurement: '%'
+    accuracy_decimals: 0
     lambda: |-
       return ((id(battery_voltage).state /3.30) * 100.00);
 
@@ -59,21 +60,28 @@ sensor:
     pin: GPIO35
     name: "Wasserstand Voltage"
     id: levelraw
+    update_interval: 3s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 10
 
   - platform: template
     name: "Wasserstand"
     lambda: |-
       return id(levelraw).state;
+    update_interval: 3s
     filters:
       - sliding_window_moving_average:
-          window_size: 30
-          send_every: 30
+          window_size: 10
+          send_every: 10
       - calibrate_linear:
             - 0.29 -> 0.0
-            - 0.36 -> 0.1
+            - 0.33 -> 0.12
+            - 0.35 -> 0.23
             - 0.6 -> 1.1
       - multiply: 100
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     unit_of_measurement: cm
     icon: "mdi:car-coolant-level"
 
@@ -91,7 +99,7 @@ binary_sensor:
 deep_sleep:
   id: deep_sleep_control
   run_duration: 60s
-  sleep_duration: 60s
+  sleep_duration: 300s
 
 script:
   - id: consider_deep_sleep
