@@ -54,8 +54,17 @@ sensor:
     unit_of_measurement: '%'
     accuracy_decimals: 0
     lambda: |-
-      return ((id(battery_voltage).state /3.30) * 100.00);
-
+      return id(battery_voltage).state;
+    filters:
+      - calibrate_linear:
+        - 3.16 -> 1.0
+        - 2.5 -> 0.0 
+      - clamp:
+          min_value: 0.0
+          max_value: 1.0
+          ignore_out_of_range: true
+      - multiply: 100
+      
   - platform: adc
     pin: GPIO35
     name: "Wasserstand Voltage"
