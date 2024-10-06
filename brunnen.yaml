@@ -91,7 +91,10 @@ sensor:
             - 0.29 -> 0.0
             - 0.33 -> 0.12
             - 0.35 -> 0.23
-            - 0.6 -> 1.1
+            - 0.60 -> 1.2
+            - 0.65 -> 2.2 # ?? 
+            - 0.91 -> 3.2
+            - 1.07 -> 4.2
       - multiply: 100
     accuracy_decimals: 0
     unit_of_measurement: cm
@@ -103,15 +106,15 @@ binary_sensor:
     id: enable_deep_sleep
     name: Enable Deep Sleep
     entity_id: input_boolean.enable_esphome_deepsleep
+    publish_initial_state: true
     on_state:
       then:
         - script.execute: consider_deep_sleep
 
-
 deep_sleep:
   id: deep_sleep_control
   run_duration: 60s
-  sleep_duration: 300s
+  sleep_duration: 1800s
 
 script:
   - id: consider_deep_sleep
