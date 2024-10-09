@@ -50,6 +50,7 @@ sensor:
     id: "battery_voltage"
     name: "Batterie Voltage"
     attenuation: auto
+    update_interval: 30s
     accuracy_decimals: 2
     filters:
       - round_to_multiple_of: 0.05
@@ -59,6 +60,7 @@ sensor:
     unit_of_measurement: '%'
     accuracy_decimals: 0
     device_class: battery
+    update_interval: 30s
     lambda: |-
       return id(battery_voltage).state;
     filters:
@@ -75,6 +77,7 @@ sensor:
     pin: GPIO35
     name: "Wasserstand Voltage"
     id: levelraw
+    attenuation: auto
     update_interval: 3s
     filters:
       - sliding_window_moving_average:
@@ -88,13 +91,13 @@ sensor:
     update_interval: 30s
     filters:
       - calibrate_linear:
-            - 0.29 -> 0.0
-            - 0.33 -> 0.12
-            - 0.35 -> 0.23
-            - 0.60 -> 1.2
-            - 0.65 -> 2.2 # ?? 
-            - 0.91 -> 3.2
-            - 1.07 -> 4.2
+            - 0.24 -> 0.0
+#            - 0.33 -> 0.12
+#            - 0.35 -> 0.23
+#            - 0.60 -> 1.2
+#            - 0.65 -> 2.2 # ?? 
+#            - 0.91 -> 3.2
+            - 1.32 -> 4.2
       - multiply: 100
     accuracy_decimals: 0
     unit_of_measurement: cm
@@ -114,13 +117,12 @@ binary_sensor:
 deep_sleep:
   id: deep_sleep_control
   run_duration: 60s
-  sleep_duration: 1800s
+  sleep_duration: 120s
 
 script:
   - id: consider_deep_sleep
     mode: queued
     then:
-      - delay: 10s
       - if:
           condition:
             binary_sensor.is_off: enable_deep_sleep
