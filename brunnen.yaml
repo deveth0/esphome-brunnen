@@ -3,10 +3,6 @@ esphome:
   friendly_name: esp32-brunnen
   platformio_options:
     upload_speed: 921600
-  on_boot:
-    then:
-      - delay: 10s
-      - script.execute: consider_deep_sleep
 
 esp32:
   board: nodemcu-32s
@@ -24,11 +20,9 @@ wifi:
 
 captive_portal:
 
-# Enable logging
 logger:
   level: DEBUG
 
-# Enable Home Assistant API
 api:
   password: ""
 
@@ -36,9 +30,25 @@ time:
   - platform: homeassistant
     id: esptime
 
+deep_sleep:
+  id: deep_sleep_control
+  run_duration: 60s
+  sleep_duration: 1800s # once an hour
+
 one_wire:
   - platform: gpio
     pin: 5
+
+# Enable more information logged into homeassistant
+debug:
+  update_interval: 5s
+#
+text_sensor:
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
 
 sensor:
   - platform: dallas_temp
@@ -51,27 +61,41 @@ sensor:
     name: "Batterie Voltage"
     attenuation: auto
     update_interval: 30s
-    accuracy_decimals: 2
-    filters:
-      - round_to_multiple_of: 0.05
+    on_value:
+      then:
+        component.update: battery_percentage
 
   - platform: template
     name: "Battery"
+    id: battery_percentage
     unit_of_measurement: '%'
     accuracy_decimals: 0
+    update_interval: never
     device_class: battery
-    update_interval: 30s
     lambda: |-
       return id(battery_voltage).state;
     filters:
-      - calibrate_linear:
+      - calibrate_linear:  
         - 3.16 -> 1.0
-        - 2.15 -> 0.0 
+        - 2.26 -> 0.0 
       - clamp:
           min_value: 0.0
           max_value: 1.0
           ignore_out_of_range: true
       - multiply: 100
+      - round: 0
+
+  - platform: adc
+    pin: GPIO34
+    name: "Solar Voltage"
+    id: "solar_voltage"
+    attenuation: auto
+    update_interval: 3s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 10
+      - multiply: 2 # depends on the used solar panel and resistors
 
   - platform: adc
     pin: GPIO35
@@ -79,17 +103,28 @@ sensor:
     id: levelraw
     attenuation: auto
     update_interval: 3s
+    on_value:
+      then:
+        component.update: waterlevel
     filters:
+      - clamp: # remove nonesense readings
+          min_value: 0.2
+          ignore_out_of_range: true
       - sliding_window_moving_average:
           window_size: 10
           send_every: 10
 
   - platform: template
     name: "Wasserstand"
+    id: waterlevel
+    update_interval: never
+    accuracy_decimals: 0
+    unit_of_measurement: cm
+    icon: "mdi:car-coolant-level"
     lambda: |-
       return id(levelraw).state;
-    update_interval: 30s
     filters:
+      - filter_out: NAN
       - calibrate_linear:
             - 0.24 -> 0.0
 #            - 0.33 -> 0.12
@@ -99,9 +134,7 @@ sensor:
 #            - 0.91 -> 3.2
             - 1.32 -> 4.2
       - multiply: 100
-    accuracy_decimals: 0
-    unit_of_measurement: cm
-    icon: "mdi:car-coolant-level"
+
 
 
 binary_sensor:
@@ -114,10 +147,16 @@ binary_sensor:
       then:
         - script.execute: consider_deep_sleep
 
-deep_sleep:
-  id: deep_sleep_control
-  run_duration: 60s
-  sleep_duration: 120s
+  - platform: template
+    id: charging
+    name: Charging
+    lambda: return id(solar_voltage).state > 4.2;
+
+switch:
+  - platform: gpio
+    id: sensor_switch
+    pin: GPIO33
+    restore_mode: ALWAYS_ON # Enable pressure sensor
 
 script:
   - id: consider_deep_sleep
