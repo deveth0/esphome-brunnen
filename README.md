@@ -162,3 +162,7 @@ Create the toggle in Home Assistant:
 
 Name the Helper `Enable ESPHome Deepsleep` (it's important that the id of the new helper matches the one configured in `brunnen.yaml`).
 
+# Acknowledgement
+
+* Thanks to [r0oland](https://github.com/r0oland) for the [ESP32 mini KiCad Library](https://github.com/r0oland/ESP32_mini_KiCad_Library)
+* Thanks to [tathamoodie](https://github.com/tathamoddie) for his [blogpost]( https://tatham.blog/2021/02/06/esphome-batteries-deep-sleep-and-over-the-air-updates/) about deep sleep 
