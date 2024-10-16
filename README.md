@@ -38,7 +38,7 @@ You can find a KiCad Model in this repository. The PCB can be mounted (aka glued
 Before adding the D1 Mini to your PCB (i highly recommend using headers), you need to install the software to the board. All subsequent updates can be done using OTA but the first installation requires an USB connection.
 
 > [!CAUTION]
-> DO NEVER CONNECT YOUR D1 BOARD VIA USB WHEN IT'S MOUNTED TO THE PCB
+> DO NEVER CONNECT YOUR D1 BOARD VIA USB WHEN IT'S MOUNTED ON THE PCB
 
 ### Solar Panel
 
@@ -46,6 +46,9 @@ You can use any solar panel that provides between 6-24V. Choose wattage accordin
 
 The resistors `R4` and `R5` are used to split the voltage of the solar panel into a range, that can be measured with an ESP32 gpio pin (max 3.3V). By using equally sized resistors, the voltage is cut by half, so this is fine for 6V panels.
 Change the resistors to the following values, when using other panels, also change the multiply factor of the `solar_voltage` sensor in `brunnen.yaml`.
+
+> [!WARNING]
+> Some solar panels provide a slightly higher voltage than specified (e.g. 14V instead of 12V). To prevent any damage on the GPIO pin, use the resistor and multiply value of the next higher rated panel if you are not sure. This reduces the accuracy of the measured voltage a bit, but might save your D1.
 
 | Panel | R4 | R5 | max V @ GPIO | `multiply` |
 | ----- | -- | -- | ------|---------- |
@@ -117,6 +120,18 @@ When the initial upload is done, you can update your ESP32 using OTA updates. Th
 
 ```
 esphome run --device 10.0.50.132 .\brunnen.yaml
+```
+
+### D18B20 Sensors
+
+Each of the D18B20 temperature sensors has a unique address that needs to be configured. Esphome logs all available devices when starting, you just need to figure out, which sensor is for the case and which one for water. 
+
+```
+[20:37:31][C][gpio.one_wire:020]: GPIO 1-wire bus:
+[20:37:31][C][gpio.one_wire:021]:   Pin: GPIO5
+[20:37:31][C][gpio.one_wire:080]:   Found devices:
+[20:37:31][C][gpio.one_wire:082]:     0x5d4a131c35646128 (DS18B20)
+[20:37:31][C][gpio.one_wire:082]:     0x8f00000e7dbdd128 (DS18B20)
 ```
 
 ### Pressure Sensor calibration
