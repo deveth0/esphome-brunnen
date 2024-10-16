@@ -1,9 +1,10 @@
 # esphome-brunnen
 
+Repository with all required stuff to build an esphome node that monitors the waterlevel and temperature of a well or cistern. It does not require any power connection as it's using a solar panel and some batteries. 
+
 ## PCB
 
 ![PCB](https://i.imgur.com/Li3hBwG.jpg)
-
 
 You can find a KiCad Model in this repository. The PCB can be mounted (aka glued) to the battery case of the [Waveshare Solar Power Manager D](https://www.waveshare.com/solar-power-manager-d.htm). Using the spacers that come with the Solar board, you can mount it to the PCB. 
 
@@ -13,6 +14,7 @@ You can find a KiCad Model in this repository. The PCB can be mounted (aka glued
 | --------- | ------ | -------- |
 | 1 | Solar Panel, 6-24V, see below | | |
 | 1 | [Waveshare Solar Power Manager D](https://www.waveshare.com/solar-power-manager-d.htm)|
+| 3 | 18650 Li-ion batteries|
 | 1 | MT3608 step up module | | |
 | 1 | D1 Mini ESP32 with headers ||
 | 1 | TL-136 Sensor, 4-20mA, 24V ||
