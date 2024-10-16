@@ -2,6 +2,9 @@
 
 ## PCB
 
+![PCB](https://i.imgur.com/Li3hBwG.jpg)
+
+
 You can find a KiCad Model in this repository. The PCB can be mounted (aka glued) to the battery case of the [Waveshare Solar Power Manager D](https://www.waveshare.com/solar-power-manager-d.htm). Using the spacers that come with the Solar board, you can mount it to the PCB. 
 
 ### Parts
