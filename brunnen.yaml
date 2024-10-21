@@ -84,7 +84,7 @@ sensor:
       return id(battery_voltage).state;
     filters:
       - calibrate_linear:  
-        - 4.05 -> 1.0
+        - 4.00 -> 1.0
         - 2.26 -> 0.0 
       - clamp:
           min_value: 0.0
