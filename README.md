@@ -34,7 +34,7 @@ You can find a KiCad Model in this repository. The PCB can be mounted (aka glued
 | 1 | Resistor, 100k | R3 |
 | 2 | Resistor, 150k | R4, R5 (see note below) |
 | 2 | Resistor, 1k | R6, R9 |
-| 1 | Resistor, 150k | R7 |
+| 1 | Resistor, 150 | R7 |
 | 1 | Resistor, 27k | R8 |
 | 1 | Resistor, 10k | R10 |
 
