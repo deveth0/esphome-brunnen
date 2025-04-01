@@ -33,22 +33,23 @@ time:
 deep_sleep:
   id: deep_sleep_control
   run_duration: 60s
-  sleep_duration: 3600s # once an hour
+  sleep_duration: 
+    minutes: 5
 
 one_wire:
   - platform: gpio
     pin: 5
 
 # Enable more information logged into homeassistant
-debug:
-  update_interval: 5s
+#debug:
+#  update_interval: 5s
 #
-text_sensor:
-  - platform: debug
-    device:
-      name: "Device Info"
-    reset_reason:
-      name: "Reset Reason"
+#text_sensor:
+#  - platform: debug
+#    device:
+#      name: "Device Info"
+#    reset_reason:
+#      name: "Reset Reason"
 
 sensor:
   - platform: dallas_temp
@@ -59,7 +60,7 @@ sensor:
   - platform: dallas_temp
     name: "Temperatur Gehäuse"
     device_class: temperature
-    address: "0x5d4a131c35646128"
+    address: "0x5cb6dc1b35646128"
 
   - platform: adc
     pin: GPIO39
@@ -85,7 +86,7 @@ sensor:
     filters:
       - calibrate_linear:  
         - 4.00 -> 1.0
-        - 2.26 -> 0.0 
+        - 2.83 -> 0.0 
       - clamp:
           min_value: 0.0
           max_value: 1.0
@@ -99,7 +100,7 @@ sensor:
     attenuation: auto
     update_interval: 30s
     filters:
-      - multiply: 4.2 # depends on the used solar panel and resistors
+      - multiply: 7.8 # depends on the used solar panel and resistors
 
   - platform: adc
     pin: GPIO35
@@ -130,13 +131,16 @@ sensor:
     filters:
       - filter_out: NAN
       - calibrate_linear:
-            - 0.24 -> 0.0
-#            - 0.33 -> 0.12
-#            - 0.35 -> 0.23
-#            - 0.60 -> 1.2
-#            - 0.65 -> 2.2 # ?? 
-#            - 0.91 -> 3.2
-            - 1.32 -> 4.2
+            - 0.6 -> 0.0
+            - 0.78 -> 0.24
+            - 1.15 -> 0.60
+            - 2.05 -> 2.60
+            - 2.5 -> 3.60
+            - 2.65 -> 4.60
+            #- 2.73 -> 4.60 measured before
+      - clamp:
+            min_value: 0
+            ignore_out_of_range: true
       - multiply: 100
 
 binary_sensor:
